@@ -1,0 +1,33 @@
+server:
+  port: 80
+
+spring:
+  application:
+    name: gateway
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+cloud:
+  gateway:
+    routes:
+      - id: cartID
+        uri: lb://CART
+        predicates:
+          - Path=/cart/**
+        filters:
+          - AddRequestHeader=X-Request-Header, Value
+          - RewritePath=/service1/(?<segment>.*), /$\{segment}
+      - id: orderId
+        uri: lb://ORDER
+        predicates:
+          - Path=/order/**
+        filters:
+          - AddResponseHeader=X-Response-Header, Value
+          - RewritePath=/service2/(?<segment>.*), /$\{segment}
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
